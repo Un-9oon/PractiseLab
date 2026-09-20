@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  web-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nexuscorp_pentest_app
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: always
