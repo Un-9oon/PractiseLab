@@ -6,7 +6,7 @@
 | Field | Details |
 |---|---|
 | **Lab Title** | Secure Login Server Deployment & Security Testing |
-| **Application** | CyberShield AI — Cybersecurity Pentest Lab |
+| **Application** | Practical Lab — Cybersecurity Pentest Lab |
 | **Web Server** | Nginx/1.30.4 on Ubuntu Linux |
 | **Server IP** | 10.108.95.204 |
 | **Date** | September 20, 2026 |
@@ -52,7 +52,7 @@ The objective of this lab activity was to:
 
 ### 2.1 Application Build
 
-The **CyberShield AI** web application (React/Vite) was built for production:
+The **Practical Lab** web application (React/Vite) was built for production:
 
 ```bash
 cd /home/we/Downloads/cybersec-pentest-lab
@@ -72,9 +72,9 @@ dist/assets/index-DiE7IyRI.js   201.60 kB │ gzip: 60.36 kB
 ### 2.2 Nginx Deployment (HTTP — Phase 1)
 
 ```bash
-sudo mkdir -p /var/www/cybershield
-sudo cp -r dist/* /var/www/cybershield/
-sudo chown -R www-data:www-data /var/www/cybershield
+sudo mkdir -p /var/www/practicallab
+sudo cp -r dist/* /var/www/practicallab/
+sudo chown -R www-data:www-data /var/www/practicallab
 ```
 
 **Initial Nginx Configuration (HTTP Only — Vulnerable):**
@@ -82,13 +82,13 @@ sudo chown -R www-data:www-data /var/www/cybershield
 server {
     listen 80;
     server_name 10.108.95.204 localhost;
-    root /var/www/cybershield;
+    root /var/www/practicallab;
     index index.html;
     location / {
         try_files $uri $uri/ /index.html;
     }
-    access_log /var/log/nginx/cybershield_access.log;
-    error_log  /var/log/nginx/cybershield_error.log;
+    access_log /var/log/nginx/practicallab_access.log;
+    error_log  /var/log/nginx/practicallab_error.log;
 }
 ```
 
@@ -114,7 +114,7 @@ Content-Type: text/html
 Content-Length: 878
 ```
 
-> ✅ CyberShield AI is **LIVE** at `http://10.108.95.204/` — but with **NO security!**
+> ✅ Practical Lab is **LIVE** at `http://10.108.95.204/` — but with **NO security!**
 
 ### 2.3 Live Web Server Screenshot Evidence (HTTP)
 
@@ -137,7 +137,7 @@ sudo tcpdump -i lo -w /tmp/http_capture.pcap port 80 -c 50
 # Send realistic login requests with sensitive data
 curl -X POST http://localhost/ \
   -H "Authorization: Bearer eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0..." \
-  -d "username=admin&password=SuperSecret123!&email=admin@cybershield.io"
+  -d "username=admin&password=SuperSecret123!&email=admin@practicallab.internal"
 
 curl http://localhost/ \
   -H "Cookie: session_token=abc123secrettoken; auth=admin_privileged"
@@ -160,7 +160,7 @@ sudo tcpdump -r /tmp/http_capture.pcap -A -n | grep -E "(password|username|Autho
 POST / HTTP/1.1
 Host: localhost
 Authorization: Bearer eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJ1c2VyIjoiYWRtaW4iLCJwYXNzd29yZCI6IlN1cGVyU2VjcmV0MTIzISJ9.
-username=admin&password=SuperSecret123!&email=admin@cybershield.io
+username=admin&password=SuperSecret123!&email=admin@practicallab.internal
 
 GET / HTTP/1.1
 Cookie: session_token=abc123secrettoken; auth=admin_privileged
@@ -247,20 +247,20 @@ password=SuperSecret123! ← VISIBLE IN PLAINTEXT
 ### 5.1 Generate Self-Signed SSL Certificate
 
 ```bash
-sudo mkdir -p /etc/nginx/ssl/cybershield
+sudo mkdir -p /etc/nginx/ssl/practicallab
 
 sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-  -keyout /etc/nginx/ssl/cybershield/privkey.pem \
-  -out /etc/nginx/ssl/cybershield/fullchain.pem \
-  -subj "/C=PK/ST=Punjab/L=Lahore/O=CyberShield AI/OU=Security Lab/CN=10.108.95.204" \
+  -keyout /etc/nginx/ssl/practicallab/privkey.pem \
+  -out /etc/nginx/ssl/practicallab/fullchain.pem \
+  -subj "/C=PK/ST=Punjab/L=Lahore/O=Practical Lab/OU=Security Lab/CN=10.108.95.204" \
   -addext "subjectAltName=IP:10.108.95.204,DNS:localhost"
 ```
 
 **Certificate Verified:**
 ```
 Signature Algorithm: sha256WithRSAEncryption
-Issuer:  C=PK, O=CyberShield AI, CN=10.108.95.204
-Subject: C=PK, O=CyberShield AI, CN=10.108.95.204
+Issuer:  C=PK, O=Practical Lab, CN=10.108.95.204
+Subject: C=PK, O=Practical Lab, CN=10.108.95.204
 Valid:   Sep 20 2026 → Sep 20 2027
 Key:     RSA 2048-bit | Digest: SHA-256
 SAN:     IP:10.108.95.204, IP:127.0.0.1, DNS:localhost
@@ -291,8 +291,8 @@ server {
 # HTTPS Server (Port 443)
 server {
     listen 443 ssl;
-    ssl_certificate     /etc/nginx/ssl/cybershield/fullchain.pem;
-    ssl_certificate_key /etc/nginx/ssl/cybershield/privkey.pem;
+    ssl_certificate     /etc/nginx/ssl/practicallab/fullchain.pem;
+    ssl_certificate_key /etc/nginx/ssl/practicallab/privkey.pem;
     ssl_protocols       TLSv1.2 TLSv1.3;   # TLS 1.0/1.1 disabled
     ssl_prefer_server_ciphers on;
 
@@ -498,7 +498,7 @@ Through this lab activity, the following were practically demonstrated:
 
 This lab activity successfully demonstrated the **complete security lifecycle** of a web server deployment.
 
-CyberShield AI was first deployed on **Nginx over plain HTTP**, exposing all user data in cleartext. **Packet capture confirmed** that sensitive credentials (`password=SuperSecret123!`, `Cookie: session_token=abc123`) were fully readable — simulating a real-world network interception attack.
+Practical Lab was first deployed on **Nginx over plain HTTP**, exposing all user data in cleartext. **Packet capture confirmed** that sensitive credentials (`password=SuperSecret123!`, `Cookie: session_token=abc123`) were fully readable — simulating a real-world network interception attack.
 
 Following identification of **10 Nginx-level vulnerabilities**, a **self-signed SSL/TLS certificate** was generated and the server was migrated to **HTTPS (TLSv1.2/1.3)**. Additionally, **9 HTTP security headers** were configured to mitigate clickjacking, MIME sniffing, XSS, SSL stripping, and cross-origin attacks.
 
@@ -525,4 +525,4 @@ Following identification of **10 Nginx-level vulnerabilities**, a **self-signed 
 
 ---
 
-*Report prepared: September 20, 2026 | CyberShield AI Security Lab*
+*Report prepared: September 20, 2026 | Practical Lab Security Lab*
